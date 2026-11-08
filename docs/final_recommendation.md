@@ -16,4 +16,6 @@
 Notes
 - Monthly figures are $/day x 30; the plan sets `budget_days: 30` so generated daily budgets match this table.
 - The plan forecasts at today's CPAs (no improvement assumed): 439 trials, $271 blended CPA.
-- PMax bid strategy is not specified in the recommendation; the plan uses Maximize conversions. Confirm before launch.
+- PMax bids to Target CPA $300 (below the $338 current CPA, to pull it down). Non-Brand uses Target CPA $310 during the ramp; Brand uses target impression share.
+- UK relaunches at about $100/day only after the three tracking checks pass.
+- Two forecasts: cautious (today's CPAs) and best case (pre-break CPAs). See output/launch_summary.md.

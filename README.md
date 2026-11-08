@@ -10,8 +10,8 @@ after checking the plan against the guardrails that the last 2 months of data ta
 ## Approved plan (December 2026)
 `plans/2026-12_rebuild.yaml` is the final recommendation that was approved. The $/day and $/month table is in
 [`docs/final_recommendation.md`](docs/final_recommendation.md). Budgets use a 30-day basis (`budget_days: 30`),
-so the generated daily budgets match that table exactly. Forecast: 439 trials at a $271 blended CPA, using
-today's CPAs with no improvement assumed.
+so the generated daily budgets match that table exactly. Two forecasts, both in the launch summary:
+cautious (today's CPAs, no improvement) and best case (pre-break CPAs, Meta $245 / Google $258).
 
 ## Reuse for the next launch (5 steps)
 1. `cp plans/2026-12_rebuild.yaml plans/2027-01_scale.yaml`

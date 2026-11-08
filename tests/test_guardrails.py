@@ -53,3 +53,13 @@ def test_approved_plan_total_and_forecast():
     f = build.forecast(PLAN)
     assert round(f["base"]["spend"]) == 119100
     assert 250 <= f["base"]["cpa"] <= 280
+
+def test_pmax_bids_to_target_cpa_300():
+    rows = build.google_rows(copy.deepcopy(PLAN))
+    pm = [r for r in rows if r["Campaign"].startswith("GOOG_PMax_US") and r["Campaign Type"]][0]
+    assert pm["Bid Strategy Type"] == "Target CPA" and pm["Target CPA"] == 300
+
+def test_pre_break_forecast_is_better_than_cautious():
+    f = build.forecast(PLAN)
+    assert f["pre_break"]["cpa"] < f["base"]["cpa"]
+    assert f["pre_break"]["spend"] == f["base"]["spend"]

@@ -10,6 +10,7 @@ account:
   # (Advantage+ is the best-CPA Meta line) and stays $900 under the $120K cap overall.
   platform_split: {meta: 69150, google: 49950}
   cpa_target: {low: 250, high: 280}
+  baseline_cpa: {meta: 245, google: 258}   # pre-break (Aug 10 - Sep 14) CPAs on PostHog trials; best-case forecast only
   landing_url: "https://example.com/start-trial"   # replace before launch
   # PostHog reconciles on utm_source, so these MUST match its values.
   utm_source: {meta: "facebook", google: "google"}
@@ -112,7 +113,7 @@ google:
       type: PERFORMANCE_MAX
       monthly_budget: 7950                  # $265/day (-52%); highest US Google CPA, no channel visibility
       assumed_cpa: 338
-      bid_strategy: {type: "Maximize conversions"}   # ASSUMPTION: final reco gives no PMax target; confirm before launch
+      bid_strategy: {type: "Target CPA", target_cpa: 300}   # below the $338 current CPA on purpose: pulls CPA down
       locations: ["United States"]
       status: ENABLED
       notes: ["Account-level brand exclusions ON; channel exclusions after Insights review", "Asset groups and image/video assets are built in the UI (not bulk-uploadable)"]
@@ -126,6 +127,7 @@ google:
       status: ENABLED                       # forced to PAUSED while budget is $0 / gate unverified
       gate:
         tracking_verified: false            # flip to true only after the 3 checks, then set a budget
+        relaunch_budget_per_day: 100        # planned restart level once verified (same structure as US Non-Brand)
         checks: ["UK test signup visible in PostHog with utm_source=google", "Google conversion fires from a UK IP", "UK pricing/currency on landing page"]
       negatives: ["free", "jobs", "course"]
       ad_groups:

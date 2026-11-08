@@ -35,7 +35,7 @@ GOOG_Search_Brand_US_202612,,,,,,,,,,,Brand_Core,,{{brand_name}},Exact,,,,,,,,,,
 GOOG_Search_Brand_US_202612,,,,,,,,,,,Brand_Core,,{{brand_name}} pricing,Phrase,,,,,,,,,,,
 GOOG_Search_Brand_US_202612,,,,,,,,,,,Brand_Core,,{{brand_name}} trial,Phrase,,,,,,,,,,,
 GOOG_Search_Brand_US_202612,,,,,,,,,,,Brand_Core,,,,Responsive search ad,https://example.com/start-trial,,{{brand_name}} Official Site,Start Your Free Trial,Agentic SEO Platform,,,,The official {{brand_name}} agent stack. Start your free trial today.,"Plans, pricing and a free trial, straight from the source."
-GOOG_PMax_US_202612,Performance Max,Enabled,265.00,Standard,Maximize conversions,,,,,,,,,,,,{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign=GOOG_PMax_US_202612&utm_term={keyword},,,,,,,,
+GOOG_PMax_US_202612,Performance Max,Enabled,265.00,Standard,Target CPA,300,,,,,,,,,,,{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign=GOOG_PMax_US_202612&utm_term={keyword},,,,,,,,
 GOOG_PMax_US_202612,,,,,,,,,,United States,,,,,,,,,,,,,,,
 GOOG_Search_NonBrand_UK_202612,Search,Paused,,Standard,Target CPA,300,,,Google search,,,,,,,,{lpurl}?utm_source=google&utm_medium=cpc&utm_campaign=GOOG_Search_NonBrand_UK_202612&utm_term={keyword},,,,,,,,
 GOOG_Search_NonBrand_UK_202612,,,,,,,,,,United Kingdom,,,,,,,,,,,,,,,

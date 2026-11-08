@@ -164,12 +164,21 @@ def forecast(plan):
             trials += (b / (cpa * cpa_mult)) * (hc if haircut else 1.0)
         return {"spend": spend, "trials": trials, "cpa": spend / trials}
 
-    return {
+    out = {
         "rows": rows,
         "base": run(),
         "stress_brand": run(haircut=True),
         "stress_cpa10": run(cpa_mult=1.10),
+        "pre_break": None,
     }
+    # Optional best-case view: every campaign at its platform's pre-break (clean-window) CPA
+    base_cpa = plan["account"].get("baseline_cpa")
+    if base_cpa:
+        spend = sum(r[2] for r in rows)
+        trials = sum(r[2] / base_cpa[r[0]] for r in rows)
+        out["pre_break"] = {"spend": spend, "trials": trials, "cpa": spend / trials}
+        out["pre_break_x110"] = {"spend": spend, "trials": trials / 1.10, "cpa": spend / (trials / 1.10)}
+    return out
 
 
 # ---------------------------------------------------------------- emitters
@@ -287,7 +296,12 @@ def write_summary(path, plan, errors, warnings, f):
         L.append(f"| {platform} | {name}{note} | {b:,} | {daily} | {cpa} | {b / cpa:.0f} |")
     L += ["", f"**Base case:** ${f['base']['spend']:,.0f} -> {f['base']['trials']:.0f} trials -> **${f['base']['cpa']:.0f} blended CPA**",
           f"**Brand 50% non-incremental:** {f['stress_brand']['trials']:.0f} trials -> ${f['stress_brand']['cpa']:.0f} CPA",
-          f"**Every CPA +10%:** {f['stress_cpa10']['trials']:.0f} trials -> ${f['stress_cpa10']['cpa']:.0f} CPA", "",
+          f"**Every CPA +10%:** {f['stress_cpa10']['trials']:.0f} trials -> ${f['stress_cpa10']['cpa']:.0f} CPA"]
+    if f.get("pre_break"):
+        L += ["", f"**Best case (pre-break CPAs, Meta ${acct['baseline_cpa']['meta']} / Google ${acct['baseline_cpa']['google']}):** "
+              f"{f['pre_break']['trials']:.0f} trials -> ${f['pre_break']['cpa']:.0f} CPA; "
+              f"if those are 10% worse: ${f['pre_break_x110']['cpa']:.0f} CPA"]
+    L += ["",
           "## Validation", ""]
     L += [f"- ERROR: {e}" for e in errors] or ["- No errors."]
     L += [f"- WARN: {w}" for w in warnings]

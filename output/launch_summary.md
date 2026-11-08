@@ -18,6 +18,8 @@ Cap $120,000 | Meta $69,150 | Google $49,950 | CPA target $250-$280
 **Brand 50% non-incremental:** 410 trials -> $291 CPA
 **Every CPA +10%:** 399 trials -> $298 CPA
 
+**Best case (pre-break CPAs, Meta $245 / Google $258):** 476 trials -> $250 CPA; if those are 10% worse: $275 CPA
+
 ## Validation
 
 - No errors.
