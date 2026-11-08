@@ -7,6 +7,12 @@ after checking the plan against the guardrails that the last 2 months of data ta
     python build.py plans/2026-12_rebuild.yaml --out output/
     pytest -q
 
+## Approved plan (December 2026)
+`plans/2026-12_rebuild.yaml` is the final recommendation that was approved. The $/day and $/month table is in
+[`docs/final_recommendation.md`](docs/final_recommendation.md). Budgets use a 30-day basis (`budget_days: 30`),
+so the generated daily budgets match that table exactly. Forecast: 439 trials at a $271 blended CPA, using
+today's CPAs with no improvement assumed.
+
 ## Reuse for the next launch (5 steps)
 1. `cp plans/2026-12_rebuild.yaml plans/2027-01_scale.yaml`
 2. Edit `launch_month`, budgets, `assumed_cpa` (use last month's PostHog-basis CPA, not platform CPA), ads, keywords.
@@ -18,11 +24,11 @@ after checking the plan against the guardrails that the last 2 months of data ta
 | Rule | Why |
 |---|---|
 | No shared budgets | Adding UK to the shared budget cut every US campaign ~31% and UK converted 0 |
-| Platform split and $120K cap | Hard stop |
+| Platform split and $120K cap | Hard stop. Approved split is Meta $69,150 / Google $49,950 ($119,100 total) |
 | Forecast blended CPA must land in $250-280 | Plan has to pay for itself on paper |
 | utm_source = facebook / google on every URL | PostHog is the source of truth and reconciles on utm_source |
 | Test lane: 1 concept per ad set (ABO) | Clean reads; CBO starves new ads |
-| Geo gate: unverified -> PAUSED | UK spent $15K with zero reported conversions |
+| Geo gate: unverified -> PAUSED, $0 budget | UK spent $15K with zero reported conversions; $0 is only allowed on a gated campaign |
 | RSA limits (30/90 chars), >=3 headlines, >=2 descriptions | Caught a 32-char headline during the first run |
 | Placeholders / missing creative -> PAUSED | Nothing half-finished goes live |
 

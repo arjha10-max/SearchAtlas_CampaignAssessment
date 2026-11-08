@@ -1,51 +1,58 @@
-# Single source of truth for one launch. Copy this file for the next launch,
-# change launch_month / budgets / ads, and re-run build.py. Nothing else to edit.
+# FINAL APPROVED PLAN. Single source of truth for this launch.
+# Next launch: copy this file, change launch_month / budgets / ads, re-run build.py.
+# Budgets below are the approved $/day x 30 (see docs/final_recommendation.md).
 account:
   name: "B2B SaaS (mock account)"
-  launch_month: "2026-12"          # drives days-in-month for daily budgets + naming
+  launch_month: "2026-12"          # drives naming
+  budget_days: 30                  # daily budget = monthly / 30, so it matches the approved $/day table
   monthly_cap: 120000
-  platform_split: {meta: 65000, google: 55000}
+  # The brief said "roughly" $65K Meta / $55K Google. The approved split moves ~$4K to Meta
+  # (Advantage+ is the best-CPA Meta line) and stays $900 under the $120K cap overall.
+  platform_split: {meta: 69150, google: 49950}
   cpa_target: {low: 250, high: 280}
   landing_url: "https://example.com/start-trial"   # replace before launch
   # PostHog reconciles on utm_source, so these MUST match its values.
   utm_source: {meta: "facebook", google: "google"}
 
+variables: {}                      # e.g. brand_name: "Acme", competitor_1: "..." (unfilled = ad group built PAUSED)
+
 meta:
   pixel_id: "REPLACE_PIXEL_ID"
-  optimization_event: "Trial_Start"        # same event, sent via Pixel + CAPI (deduped)
+  optimization_event: "Trial_Start"        # same event via Pixel + CAPI (deduped); verify BEFORE launch
   campaigns:
     - name: "Prospecting_A+_US_Scale"
       objective: "OUTCOME_LEADS"
       budget_mode: CBO
-      monthly_budget: 42000
-      assumed_cpa: 240                      # clean-window Meta A+ CPA was ~$219 platform / ~$244 account
-      role: "Scale lane: only proven ads live here"
+      monthly_budget: 49500                 # $1,650/day (+39% vs $1,184)
+      assumed_cpa: 250                      # current CPA, no improvement assumed
+      role: "Scale lane: only proven ads live here. 64% of Meta trials at the lowest Meta CPA"
+      scale_rule: "Raise no more than ~20% per week"
       adsets:
         - name: "AdvPlus_Broad_US"
           audience: "advantage_plus"
           countries: ["US"]
           age: [25, 65]
           ads:
-            - {name: "UGC_Founder_v2",          creative_status: existing, primary: "Founders: stop babysitting SEO. Let agents run it.", headline: "Agentic SEO, on autopilot", cta: "SIGN_UP"}
-            - {name: "UGC_Agency_Owner",        creative_status: existing, primary: "Agency owners: scale client SEO without scaling headcount.", headline: "Ship SEO for every client", cta: "SIGN_UP"}
-            - {name: "Demo_Screen_Walkthrough", creative_status: existing, primary: "See the agent stack work, end to end, in 60 seconds.", headline: "Watch it run. Then try it.", cta: "SIGN_UP"}
+            - {name: "UGC_Founder_v2",            creative_status: existing, primary: "Founders: stop babysitting SEO. Let agents run it.", headline: "Agentic SEO, on autopilot", cta: "SIGN_UP"}
+            - {name: "UGC_Agency_Owner",          creative_status: existing, primary: "Agency owners: scale client SEO without scaling headcount.", headline: "Ship SEO for every client", cta: "SIGN_UP"}
+            - {name: "Demo_Screen_Walkthrough",   creative_status: existing, primary: "See the agent stack work, end to end, in 60 seconds.", headline: "Watch it run. Then try it.", cta: "SIGN_UP"}
             - {name: "Static_AgentStack_Benefits", creative_status: existing, primary: "One agent stack for research, content and fixes.", headline: "Start your free trial", cta: "SIGN_UP"}
     - name: "Prospecting_Test_US_ABO"
       objective: "OUTCOME_LEADS"
-      budget_mode: ABO                       # ABO so every concept gets equal spend (CBO starves the new ones)
-      monthly_budget: 14000
-      assumed_cpa: 300
+      budget_mode: ABO                       # ABO: every concept gets an equal, clean read
+      monthly_budget: 9900                   # $330/day (-49%); replaces the Broad budget line (Broad CPA $328)
+      assumed_cpa: 328
       role: "Creative test lane: one concept per ad set, graduate winners to Scale"
       adsets:
-        - {name: "Test_Carousel_Case_Study",  audience: "broad", countries: ["US"], age: [25, 65], monthly_budget: 4667, ads: [{name: "Carousel_Case_Study", creative_status: existing, primary: "How teams cut SEO production time with agents.", headline: "See the case study", cta: "LEARN_MORE"}]}
-        - {name: "Test_Founder_NewHook",      audience: "broad", countries: ["US"], age: [25, 65], monthly_budget: 4667, ads: [{name: "UGC_Founder_v3_NewHook", creative_status: new_needed, primary: "[creative to supply: new hook, same founder format]", headline: "Agentic SEO, on autopilot", cta: "SIGN_UP"}]}
-        - {name: "Test_Comparison_Static",    audience: "broad", countries: ["US"], age: [25, 65], monthly_budget: 4666, ads: [{name: "Static_Agents_vs_Manual", creative_status: new_needed, primary: "[creative to supply: agents vs manual workflow]", headline: "Agents vs. manual SEO", cta: "SIGN_UP"}]}
+        - {name: "Test_Carousel_Case_Study",  audience: "broad", countries: ["US"], age: [25, 65], monthly_budget: 3300, ads: [{name: "Carousel_Case_Study", creative_status: existing, primary: "How teams cut SEO production time with agents.", headline: "See the case study", cta: "LEARN_MORE"}]}
+        - {name: "Test_Founder_NewHook",      audience: "broad", countries: ["US"], age: [25, 65], monthly_budget: 3300, ads: [{name: "UGC_Founder_v3_NewHook", creative_status: new_needed, primary: "[creative to supply: new hook, same founder format]", headline: "Agentic SEO, on autopilot", cta: "SIGN_UP"}]}
+        - {name: "Test_Comparison_Static",    audience: "broad", countries: ["US"], age: [25, 65], monthly_budget: 3300, ads: [{name: "Static_Agents_vs_Manual", creative_status: new_needed, primary: "[creative to supply: agents vs manual workflow]", headline: "Agents vs. manual SEO", cta: "SIGN_UP"}]}
     - name: "Retargeting_US_14d"
       objective: "OUTCOME_LEADS"
       budget_mode: ABO
-      monthly_budget: 6000
-      assumed_cpa: 350
-      role: "Capped. Judged by holdout lift, not platform CPA"
+      monthly_budget: 9750                   # $325/day (+1%); window cut from 30 to 14 days
+      assumed_cpa: 433                       # current CPA; the 14d window + second creative should improve it
+      role: "Kept at current spend. Judged by holdout lift, not platform CPA"
       adsets:
         - name: "Visitors_14d_ExclTrial"
           audience: "custom: site visitors 14d, exclude trial starters + customers"
@@ -53,17 +60,17 @@ meta:
           age: [25, 65]
           frequency_cap: "3 per 7 days"
           ads:
-            - {name: "Retargeting_Testimonial", creative_status: existing, primary: "Teams like yours already run SEO on agents. Start free.", headline: "Finish your free trial setup", cta: "SIGN_UP"}
-  flex_reserve: {monthly_budget: 3000, assumed_cpa: 240, release_rule: "Released to a Scale-lane or graduated ad only when it clears the winner rules"}
+            - {name: "Retargeting_Testimonial",   creative_status: existing,   primary: "Teams like yours already run SEO on agents. Start free.", headline: "Finish your free trial setup", cta: "SIGN_UP"}
+            - {name: "Retargeting_Second_Creative", creative_status: new_needed, primary: "[creative to supply: second retargeting angle]", headline: "Your free trial is waiting", cta: "SIGN_UP"}
 
 google:
   conversion_action: "Trial_Start (imported from PostHog / enhanced conversions)"
   campaigns:
     - name: "Search_NonBrand_US"
       type: SEARCH
-      monthly_budget: 27000
-      assumed_cpa: 290
-      bid_strategy: {type: "Target CPA", target_cpa: 275}
+      monthly_budget: 33000                 # $1,100/day (+56% vs $704)
+      assumed_cpa: 310
+      bid_strategy: {type: "Target CPA", target_cpa: 310}   # near current CPA during the ramp, tighten later
       locations: ["United States"]
       status: ENABLED
       negatives: ["free", "jobs", "career", "salary", "course", "tutorial", "internship", "template download"]
@@ -86,13 +93,14 @@ google:
             descriptions: ["Looking for an alternative? Run SEO on agents. Start your free trial.", "Compare features, then try the agent stack free. No long setup."]
     - name: "Search_Brand_US"
       type: SEARCH
-      monthly_budget: 9000
-      assumed_cpa: 155
-      incrementality_haircut: 0.5             # stress test: assume only half of brand trials are incremental
+      monthly_budget: 9000                  # $300/day (-4%)
+      assumed_cpa: 154
+      incrementality_haircut: 0.5           # stress test: assume only half of brand trials are incremental
       bid_strategy: {type: "Target impression share", location: "ABSOLUTE_TOP_OF_PAGE", percent: 90, max_cpc: 3.0}
       locations: ["United States"]
       status: ENABLED
       own_budget_reason: "Brand must never share a budget; shared budgets let non-brand starve it."
+      notes: ["Incrementality untested: run a holdout before any change to this budget"]
       negatives: ["jobs", "careers", "login help"]
       ad_groups:
         - name: "Brand_Core"
@@ -102,22 +110,22 @@ google:
             descriptions: ["The official {{brand_name}} agent stack. Start your free trial today.", "Plans, pricing and a free trial, straight from the source."]
     - name: "PMax_US"
       type: PERFORMANCE_MAX
-      monthly_budget: 11000
-      assumed_cpa: 320
-      bid_strategy: {type: "Target CPA", target_cpa: 300}
+      monthly_budget: 7950                  # $265/day (-52%); highest US Google CPA, no channel visibility
+      assumed_cpa: 338
+      bid_strategy: {type: "Maximize conversions"}   # ASSUMPTION: final reco gives no PMax target; confirm before launch
       locations: ["United States"]
       status: ENABLED
-      notes: ["Account-level brand exclusions ON", "Audience signals: trial-user customer match + non-brand custom intent", "Asset groups and image/video assets are built in the UI (not bulk-uploadable)", "6-week review: pause if account-level CPA > $320"]
+      notes: ["Account-level brand exclusions ON; channel exclusions after Insights review", "Asset groups and image/video assets are built in the UI (not bulk-uploadable)"]
       ad_groups: []
     - name: "Search_NonBrand_UK"
       type: SEARCH
-      monthly_budget: 3000
+      monthly_budget: 0                     # $0: zero conversions on $15.1K. Stays paused until the gate passes
       assumed_cpa: 300
       bid_strategy: {type: "Target CPA", target_cpa: 300}
       locations: ["United Kingdom"]
-      status: ENABLED                           # forced to PAUSED by the gate below if not verified
+      status: ENABLED                       # forced to PAUSED while budget is $0 / gate unverified
       gate:
-        tracking_verified: false                # flip to true only after the 3 checks in the runbook
+        tracking_verified: false            # flip to true only after the 3 checks, then set a budget
         checks: ["UK test signup visible in PostHog with utm_source=google", "Google conversion fires from a UK IP", "UK pricing/currency on landing page"]
       negatives: ["free", "jobs", "course"]
       ad_groups:
@@ -126,4 +134,3 @@ google:
           rsa:
             headlines: ["Agentic SEO Platform", "AI SEO Agents That Ship", "Start Your Free Trial"]
             descriptions: ["One agent stack for SEO research, content and fixes. Try it free.", "Replace manual SEO busywork with agents. Start your free trial."]
-  flex_reserve: {monthly_budget: 5000, assumed_cpa: 290, release_rule: "Released to Non-Brand US only when it clears the winner rules"}

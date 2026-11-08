@@ -31,8 +31,25 @@ def test_forecast_outside_target_blocks():
         for c in p["meta"]["campaigns"]: c["assumed_cpa"] = 400
     assert any("outside" in e for e in errs(m))
 
-def test_unverified_uk_gate_builds_paused(tmp_path):
-    p = copy.deepcopy(PLAN)
-    rows = build.google_rows(p)
-    uk = [r for r in rows if r["Campaign"].startswith("GOOG_Search_NonBrand_UK") and r["Campaign Daily Budget"]]
+def test_unverified_uk_gate_builds_paused():
+    rows = build.google_rows(copy.deepcopy(PLAN))
+    uk = [r for r in rows if r["Campaign"].startswith("GOOG_Search_NonBrand_UK") and r["Campaign Type"]]
     assert uk[0]["Campaign Status"] == "Paused"
+    assert uk[0]["Campaign Daily Budget"] == ""      # $0 budget: set one only after the gate passes
+
+def test_zero_budget_only_allowed_when_gated():
+    def m(p): p["google"]["campaigns"][0]["monthly_budget"] = 0
+    assert any("only a gated campaign" in e for e in errs(m))
+
+def test_daily_budgets_match_approved_table():
+    g = {r["Campaign"]: r["Campaign Daily Budget"] for r in build.google_rows(copy.deepcopy(PLAN)) if r["Campaign Type"]}
+    assert g["GOOG_Search_NonBrand_US_202612"] == "1100.00"
+    assert g["GOOG_Search_Brand_US_202612"] == "300.00"
+    assert g["GOOG_PMax_US_202612"] == "265.00"
+    m = {r["Campaign Name"]: r["Campaign Daily Budget"] for r in build.meta_rows(copy.deepcopy(PLAN)) if r["Campaign Daily Budget"]}
+    assert m["META_Prospecting_A+_US_Scale_202612"] == "1650.00"
+
+def test_approved_plan_total_and_forecast():
+    f = build.forecast(PLAN)
+    assert round(f["base"]["spend"]) == 119100
+    assert 250 <= f["base"]["cpa"] <= 280

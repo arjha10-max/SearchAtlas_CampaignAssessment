@@ -30,6 +30,13 @@ def days_in_month(launch_month):
     return calendar.monthrange(y, m)[1]
 
 
+def budget_days(plan):
+    """Days used to turn monthly budgets into daily ones. `account.budget_days` (e.g. 30) wins
+    over the calendar month so daily budgets match the approved $/day table exactly."""
+    a = plan["account"]
+    return a.get("budget_days") or days_in_month(a["launch_month"])
+
+
 def yyyymm(launch_month):
     return launch_month.replace("-", "")
 
@@ -84,14 +91,16 @@ def validate(plan):
             warnings.append(f"{platform}: ${acct['platform_split'][platform] - totals[platform]:,} of the split is unallocated")
     if sum(totals.values()) > cap:
         errors.append(f"Total ${sum(totals.values()):,} exceeds monthly cap ${cap:,}")
+    elif sum(totals.values()) < cap:
+        warnings.append(f"Total ${sum(totals.values()):,} leaves ${cap - sum(totals.values()):,} of the ${cap:,} cap unallocated")
 
     for platform, c in all_campaigns(plan):
         tag = f"{platform}/{c['name']}"
         # 2. No shared budgets: every campaign owns its budget
         if "shared_budget" in c:
             errors.append(f"{tag}: shared budgets are not allowed (one campaign starved the others last time)")
-        if c["monthly_budget"] <= 0:
-            errors.append(f"{tag}: monthly_budget must be > 0")
+        if c["monthly_budget"] < 0 or (c["monthly_budget"] == 0 and not c.get("gate")):
+            errors.append(f"{tag}: monthly_budget must be > 0 (only a gated campaign may sit at $0)")
         # 3. ABO ad-set budgets must add up; test lanes get exactly one concept per ad set
         if c.get("budget_mode") == "ABO" and len(c.get("adsets", [])) > 1:
             s = sum(a.get("monthly_budget", 0) for a in c["adsets"])
@@ -172,12 +181,12 @@ GOOGLE_COLS = ["Campaign", "Campaign Type", "Campaign Status", "Campaign Daily B
 
 def google_rows(plan):
     v = plan.get("variables", {})
-    dim = days_in_month(plan["account"]["launch_month"])
+    dim = budget_days(plan)
     rows = []
     for c in plan["google"]["campaigns"]:
         name = full_name(plan, "google", c["name"])
         gate = c.get("gate")
-        status = "Paused" if (gate and not gate.get("tracking_verified")) else ("Enabled" if c["status"] == "ENABLED" else "Paused")
+        status = "Paused" if (c["monthly_budget"] == 0 or (gate and not gate.get("tracking_verified"))) else ("Enabled" if c["status"] == "ENABLED" else "Paused")
         bs = c["bid_strategy"]
         base_url, tags = utm_url(plan, "google", name)
         row = dict.fromkeys(GOOGLE_COLS, "")
@@ -185,7 +194,7 @@ def google_rows(plan):
             "Campaign": name,
             "Campaign Type": "Performance Max" if c["type"] == "PERFORMANCE_MAX" else "Search",
             "Campaign Status": status,
-            "Campaign Daily Budget": f"{c['monthly_budget'] / dim:.2f}",
+            "Campaign Daily Budget": f"{c['monthly_budget'] / dim:.2f}" if c["monthly_budget"] else "",
             "Budget type": "Standard",          # never "Shared"
             "Bid Strategy Type": bs["type"],
             "Target CPA": bs.get("target_cpa", ""),
@@ -223,7 +232,7 @@ META_COLS = ["Campaign Name", "Campaign Status", "Campaign Objective", "Buying T
 
 
 def meta_rows(plan):
-    dim = days_in_month(plan["account"]["launch_month"])
+    dim = budget_days(plan)
     m = plan["meta"]
     rows = []
     for c in m["campaigns"]:
@@ -267,7 +276,7 @@ def write_csv(path, cols, rows):
 
 
 def write_summary(path, plan, errors, warnings, f):
-    acct = plan["account"]; dim = days_in_month(acct["launch_month"])
+    acct = plan["account"]; dim = budget_days(plan)
     L = [f"# Launch summary: {acct['name']} ({acct['launch_month']})", "",
          f"Cap ${acct['monthly_cap']:,} | Meta ${acct['platform_split']['meta']:,} | Google ${acct['platform_split']['google']:,} | "
          f"CPA target ${acct['cpa_target']['low']}-${acct['cpa_target']['high']}", "",
