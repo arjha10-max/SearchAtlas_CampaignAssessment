@@ -41,8 +41,8 @@ cautious (today's CPAs, no improvement) and best case (pre-break CPAs, Meta $245
 
 ## Front end
 
-Browser app for choosing a plan, watching the build steps and downloading the output files:
+Browser app for choosing a plan, watching the build steps and downloading the output files. No login needed:
 
-https://claude.ai/artifact/M3EpZH3rCzLGKGJBuwU2mj
+https://arjha10-max.github.io/SearchAtlas_CampaignAssessment/
 
-Source is in `frontend/` (open `index.html` in a browser, or serve the folder). It runs the same checks and produces the same files as `build.py`.
+Source is in `docs/` (served by GitHub Pages from `main` /docs). It runs the same checks and produces the same files as `build.py`.
