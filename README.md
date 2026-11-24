@@ -38,3 +38,11 @@ cautious (today's CPAs, no improvement) and best case (pre-break CPAs, Meta $245
 - Column names follow the Editor / Ads Manager import formats from memory; do one import with
   preview first and, if a column is rejected, export an existing campaign and match its header.
 - PMax asset groups cannot be bulk uploaded.
+
+## Front end
+
+Browser app for choosing a plan, watching the build steps and downloading the output files:
+
+https://claude.ai/artifact/M3EpZH3rCzLGKGJBuwU2mj
+
+Source is in `frontend/` (open `index.html` in a browser, or serve the folder). It runs the same checks and produces the same files as `build.py`.

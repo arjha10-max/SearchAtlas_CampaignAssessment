@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Search Atlas · Campaign Builder</title>
+<style>
+  /* Brand colors. The site uses purple accents on dark backgrounds with a white logo.
+     Swap these values for the exact Search Atlas hex codes from the brand kit. */
+  :root {
+    --brand: #8b5cf6;        /* primary purple */
+    --brand-hover: #7c3aed;
+    --brand-soft: rgba(139,92,246,.14);
+    --bg: #0d0b1a;           /* page background */
+    --panel: #161327;        /* cards */
+    --panel-2: #1e1936;      /* inputs, KPI tiles */
+    --line: #2d2750;
+    --text: #f5f3ff;
+    --muted: #a59fc4;
+    --ok: #34d399;
+    --warn: #fbbf24;
+    --err: #f87171;
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 var(--font); color:var(--text); background:var(--bg); min-height:100vh; }
+  header { display:flex; align-items:center; gap:14px; padding:18px 28px; border-bottom:1px solid var(--line); background:linear-gradient(90deg, #120e26, var(--bg)); }
+  .logo { width:34px; height:34px; border-radius:9px; background:linear-gradient(135deg, var(--brand), #c084fc); display:grid; place-items:center; font-weight:800; color:#fff; }
+  header h1 { margin:0; font-size:17px; font-weight:700; letter-spacing:.01em; }
+  header p { margin:2px 0 0; color:var(--muted); font-size:12.5px; }
+  main { display:grid; grid-template-columns: 340px 1fr; gap:18px; padding:18px 28px 32px; align-items:start; }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } header { padding:16px; } main { padding:14px; } }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; }
+  .card h2 { font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 12px; font-weight:700; }
+  label.field { display:block; font-size:12.5px; color:var(--muted); margin-bottom:6px; }
+  select, textarea { width:100%; font:inherit; color:var(--text); background:var(--panel-2); border:1px solid var(--line); border-radius:9px; padding:9px 10px; }
+  select:focus, textarea:focus { outline:2px solid var(--brand); outline-offset:1px; }
+  textarea { height:190px; font:12px/1.45 ui-monospace, Menlo, monospace; margin-top:10px; resize:vertical; }
+  .row { display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+  button { font:inherit; font-weight:600; padding:9px 15px; border-radius:9px; border:1px solid var(--line); background:var(--panel-2); color:var(--text); cursor:pointer; }
+  button:hover:not(:disabled) { border-color:var(--brand); }
+  button.primary { background:var(--brand); border-color:var(--brand); color:#fff; width:100%; }
+  button.primary:hover:not(:disabled) { background:var(--brand-hover); }
+  button:disabled { opacity:.4; cursor:not-allowed; }
+  input[type=file] { font-size:12.5px; color:var(--muted); width:100%; }
+  .steps { list-style:none; margin:0; padding:0; }
+  .steps li { display:flex; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .steps li:last-child { border-bottom:none; }
+  .dot { width:24px; height:24px; border-radius:50%; flex:none; display:grid; place-items:center; color:#0d0b1a; font-size:12px; font-weight:800; background:var(--line); }
+  .dot.ok { background:var(--ok); } .dot.warn { background:var(--warn); } .dot.error { background:var(--err); }
+  .dot.pending { background:var(--line); color:var(--muted); }
+  .step-name { font-weight:600; }
+  .step-detail { color:var(--muted); font-size:12.5px; }
+  .kpis { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; margin:14px 0; }
+  @media (max-width: 700px) { .kpis { grid-template-columns: 1fr 1fr; } }
+  .kpi { background:var(--panel-2); border:1px solid var(--line); border-radius:11px; padding:12px 14px; }
+  .kpi b { display:block; font-size:20px; color:#fff; }
+  .kpi span { color:var(--muted); font-size:12px; }
+  .banner { padding:11px 14px; border-radius:10px; font-weight:600; font-size:13.5px; }
+  .banner.ok { background:rgba(52,211,153,.12); color:var(--ok); border:1px solid rgba(52,211,153,.35); }
+  .banner.blocked { background:rgba(248,113,113,.1); color:var(--err); border:1px solid rgba(248,113,113,.35); }
+  .tabs { display:flex; gap:4px; flex-wrap:wrap; border-bottom:1px solid var(--line); margin:4px 0 14px; }
+  .tab { border:none; border-bottom:2px solid transparent; border-radius:0; padding:9px 12px; background:none; color:var(--muted); }
+  .tab:hover { color:var(--text); border-color:transparent; }
+  .tab.on { color:#fff; border-bottom-color:var(--brand); }
+  .list { margin:0; padding-left:18px; }
+  .list li { margin:6px 0; }
+  .li-err { color:var(--err); } .li-warn { color:var(--warn); }
+  .scroll { overflow:auto; max-height:460px; border:1px solid var(--line); border-radius:10px; }
+  table { border-collapse:collapse; font-size:12px; white-space:nowrap; }
+  th, td { border-bottom:1px solid var(--line); padding:7px 10px; text-align:left; max-width:340px; overflow:hidden; text-overflow:ellipsis; }
+  th { position:sticky; top:0; background:var(--panel-2); color:var(--muted); font-weight:600; }
+  td { color:var(--text); }
+  pre { white-space:pre-wrap; font:12px/1.55 ui-monospace, Menlo, monospace; margin:0; color:var(--text); }
+  .hint { color:var(--muted); font-size:12px; margin:10px 0 0; }
+  .hidden { display:none; }
+  .chip { display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em; padding:3px 8px; border-radius:6px; background:var(--brand-soft); color:#c4b5fd; margin-left:6px; vertical-align:middle; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">SA</div>
+  <div>
+    <h1>Search Atlas · Campaign Builder</h1>
+    <p>Pick a plan. Steps run in order: load, check guardrails, forecast, write files. Blocked plans write no launch files.</p>
+  </div>
+</header>
+
+<main>
+  <section>
+    <div class="card">
+      <h2>1. Choose plan</h2>
+      <label class="field" for="planSelect">Plan</label>
+      <select id="planSelect"></select>
+
+      <label class="field" for="file" style="margin-top:14px">Or upload a plan file (.yaml)</label>
+      <input type="file" id="file" accept=".yaml,.yml,text/yaml">
+
+      <label class="field" for="yaml" style="margin-top:14px">Plan YAML</label>
+      <textarea id="yaml" spellcheck="false"></textarea>
+
+      <div class="row">
+        <button id="run" class="primary">Run build</button>
+      </div>
+      <p class="hint">Runs entirely in this browser. Nothing is uploaded anywhere.</p>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h2>Downloads</h2>
+      <div class="row" style="margin-top:0">
+        <button id="dlGoogle" disabled>google_ads_editor.csv</button>
+        <button id="dlMeta" disabled>meta_bulk_import.csv</button>
+        <button id="dlSummary" disabled>launch_summary.md</button>
+      </div>
+      <p class="hint">CSV files are only produced when there are no errors.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="card">
+      <h2>Steps</h2>
+      <ul class="steps" id="steps"><li><span class="dot">·</span><div><div class="step-name">Waiting for a run</div><div class="step-detail">Choose a plan on the left, then run the build.</div></div></li></ul>
+    </div>
+
+    <div class="card hidden" id="resultCard" style="margin-top:16px">
+      <div id="banner" class="banner"></div>
+      <div class="kpis" id="kpis"></div>
+      <div class="tabs" id="tabs">
+        <button class="tab on" data-tab="validation">Validation</button>
+        <button class="tab" data-tab="forecast">Forecast</button>
+        <button class="tab" data-tab="google">Google CSV</button>
+        <button class="tab" data-tab="meta">Meta CSV</button>
+        <button class="tab" data-tab="summary">Summary</button>
+      </div>
+      <div id="panel"></div>
+    </div>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/js-yaml/4.1.0/js-yaml.min.js"></script>
+<script src="approved_plan.js"></script>
+<script src="core.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  let last = null;
+  let activeTab = "validation";
+  const plans = window.PLANS || [];
+
+  // Plan picker: every plan in plans/ is listed, plus a Custom option for uploads and paste.
+  const sel = $("planSelect");
+  sel.innerHTML = plans.map((p, i) => `<option value="${i}">${esc(p.label)}</option>`).join("")
+    + `<option value="custom">Custom (upload or paste)</option>`;
+  function loadSelected() {
+    const v = sel.value;
+    if (v !== "custom") $("yaml").value = plans[Number(v)].yaml;
+  }
+  sel.onchange = loadSelected;
+  if (plans.length) loadSelected(); else sel.value = "custom";
+
+  $("file").onchange = async e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    $("yaml").value = await f.text();
+    sel.value = "custom";
+  };
+
+  function showBanner(kind, text) {
+    $("resultCard").classList.remove("hidden");
+    $("banner").className = "banner " + kind;
+    $("banner").textContent = text;
+  }
+
+  function renderSteps(steps) {
+    const icon = { ok: "✓", warn: "!", error: "✕", pending: "·" };
+    $("steps").innerHTML = steps.map(s =>
+      `<li><span class="dot ${s.status}">${icon[s.status] || "·"}</span>
+        <div><div class="step-name">${esc(s.name)}</div><div class="step-detail">${esc(s.detail)}</div></div></li>`).join("");
+  }
+
+  function renderKpis(r) {
+    const f = r.forecast;
+    if (!f) { $("kpis").innerHTML = ""; return; }
+    const cards = [
+      ["$" + Math.round(f.base.spend).toLocaleString("en-US"), "Monthly spend"],
+      [Math.round(f.base.trials).toLocaleString("en-US"), "Forecast trials"],
+      ["$" + Math.round(f.base.cpa), "Blended CPA (target $250-280)"],
+      [r.errors.length + " / " + r.warnings.length, "Errors / warnings"],
+    ];
+    $("kpis").innerHTML = cards.map(([v, l]) => `<div class="kpi"><b>${esc(v)}</b><span>${esc(l)}</span></div>`).join("");
+  }
+
+  function table(cols, rows) {
+    const head = "<tr>" + cols.map(c => `<th>${esc(c)}</th>`).join("") + "</tr>";
+    const body = rows.map(r => "<tr>" + cols.map(c => `<td title="${esc(r[c] || "")}">${esc(r[c] || "")}</td>`).join("") + "</tr>").join("");
+    return `<div class="scroll"><table><thead>${head}</thead><tbody>${body}</tbody></table></div>
+      <p class="hint">${rows.length} rows. Download the file for the full import.</p>`;
+  }
+
+  function renderTab() {
+    const r = last;
+    if (!r || !r.ok && !r.forecast) { $("panel").innerHTML = ""; return; }
+    let html = "";
+    if (activeTab === "validation") {
+      const items = [
+        ...r.errors.map(e => `<li class="li-err">ERROR: ${esc(e)}</li>`),
+        ...r.warnings.map(w => `<li class="li-warn">WARN: ${esc(w)}</li>`),
+      ];
+      html = items.length ? `<ul class="list">${items.join("")}</ul>` : `<p>No errors or warnings.</p>`;
+    } else if (activeTab === "forecast") {
+      const f = r.forecast, dim = r.plan.account.budget_days || 30;
+      const rows = f.rows.map(([p, n, b, cpa, , live]) =>
+        `<tr><td>${esc(p)}</td><td>${esc(n)}${live ? "" : " (gated, paused)"}</td><td>$${b.toLocaleString("en-US")}</td><td>$${Math.round(b / dim)}</td><td>$${cpa}</td><td>${Math.round(b / cpa)}</td></tr>`).join("");
+      html = `<div class="scroll"><table><thead><tr><th>Platform</th><th>Campaign</th><th>Monthly</th><th>Daily</th><th>Assumed CPA</th><th>Trials</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <ul class="list" style="margin-top:14px">
+          <li><b>Base:</b> ${Math.round(f.base.trials)} trials at $${Math.round(f.base.cpa)} blended CPA</li>
+          <li><b>Brand 50% non-incremental:</b> $${Math.round(f.stress_brand.cpa)} CPA</li>
+          <li><b>Every CPA +10%:</b> $${Math.round(f.stress_cpa10.cpa)} CPA</li>
+          ${f.pre_break ? `<li><b>Best case (pre-break CPAs):</b> $${Math.round(f.pre_break.cpa)} CPA</li>` : ""}
+        </ul>`;
+    } else if (activeTab === "google") {
+      const f = r.files["google_ads_editor.csv"];
+      html = f ? table(f.cols, f.rows) : `<p>Blocked: no CSV was written. Fix the errors on the Validation tab.</p>`;
+    } else if (activeTab === "meta") {
+      const f = r.files["meta_bulk_import.csv"];
+      html = f ? table(f.cols, f.rows) : `<p>Blocked: no CSV was written. Fix the errors on the Validation tab.</p>`;
+    } else if (activeTab === "summary") {
+      html = `<pre>${esc(r.summary)}</pre>`;
+    }
+    $("panel").innerHTML = html;
+  }
+
+  // Inside a published artifact, plain download links are blocked, so saving goes through
+  // the downloads capability. Opened as a local file, fall back to a normal download link.
+  async function download(name, text, type) {
+    const dl = window.claude ? await window.claude.use("downloads") : null;
+    if (dl) {
+      try { await dl.save({ filename: name, data: text }); return; }
+      catch (e) {
+        try { await dl.save({ filename: name, data: new Blob([text], { type: type || "text/plain" }) }); return; }
+        catch (e2) { showBanner("blocked", "The browser did not save " + name + ". Try the download again."); return; }
+      }
+    }
+    const blob = new Blob([text], { type: type || "text/plain" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }
+
+  // Run the build, then reveal each step with a short delay so the pipeline is visible.
+  $("run").onclick = () => {
+    const text = $("yaml").value.trim();
+    if (!text) { showBanner("blocked", "Choose a plan or paste plan YAML first."); return; }
+    const r = CampaignCore.runBuild(text);
+    last = r;
+    $("resultCard").classList.remove("hidden");
+    $("dlGoogle").disabled = $("dlMeta").disabled = $("dlSummary").disabled = true;
+    const pending = r.steps.map(s => ({ name: s.name, status: "pending", detail: "Waiting…" }));
+    renderSteps(pending);
+    r.steps.forEach((s, i) => setTimeout(() => {
+      pending[i] = s;
+      renderSteps(pending);
+      if (i === r.steps.length - 1) finish(r);
+    }, 300 * (i + 1)));
+  };
+
+  function finish(r) {
+    if (r.ok) showBanner("ok", "Build OK: launch files written. Ads with missing creative or placeholders are PAUSED.");
+    else showBanner("blocked", r.forecast ? `Build blocked: ${r.errors.length} error(s). Fix the plan and run again.` : "Could not read the plan. Check the YAML.");
+    renderKpis(r);
+    activeTab = "validation";
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b.dataset.tab === activeTab));
+    renderTab();
+    $("dlGoogle").disabled = !r.ok;
+    $("dlMeta").disabled = !r.ok;
+    $("dlSummary").disabled = !r.summary;
+  }
+
+  document.querySelectorAll(".tab").forEach(btn => btn.onclick = () => {
+    document.querySelectorAll(".tab").forEach(b => b.classList.toggle("on", b === btn));
+    activeTab = btn.dataset.tab;
+    renderTab();
+  });
+
+  $("dlGoogle").onclick = () => last && download("google_ads_editor.csv", last.files["google_ads_editor.csv"].text, "text/csv");
+  $("dlMeta").onclick = () => last && download("meta_bulk_import.csv", last.files["meta_bulk_import.csv"].text, "text/csv");
+  $("dlSummary").onclick = () => last && download("launch_summary.md", last.summary, "text/markdown");
+})();
+</script>
+</body>
+</html>
